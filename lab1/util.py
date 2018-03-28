@@ -245,7 +245,7 @@ class Counter(dict):
 
     >>> a['blah'] += 1
     >>> print a['blah']
-    1
+    1  
 
     The counter also includes additional functionality useful in implementing
     the classifiers for this assignment.  Two counters can be added,

@@ -69,8 +69,15 @@ class SearchNode:
         if node.isRootNode(): 
             # The initial state is the final state
             return moves        
-
+        
         "**YOUR CODE HERE**"
+        #print node.parent
+        while not node.parent == None:
+            moves.append(node.transition)
+            node = node.parent
+        moves.reverse()
+        return moves
+        
         util.raiseNotDefined()
 
 
@@ -136,22 +143,74 @@ def depthFirstSearch(problem):
 
     To get started, you might want to try some of these simple commands to
     understand the search problem that is being passed in:
-
+    """
+    """
     print "Start:", problem.getStartState()
     print "Is the start a goal?", problem.isGoalState(problem.getStartState())
     print "Start's successors:", problem.getSuccessors(problem.getStartState())
     """
     "*** YOUR CODE HERE ***"
+    open = util.Stack()
+    visited = []
+    open.push(SearchNode(problem.getStartState()))
+    while not open.isEmpty():
+        currentNode = open.pop()
+        if currentNode.position in visited:
+            continue
+        if problem.isGoalState(currentNode.position):
+            #print "dosao do kraja..."
+            return currentNode.backtrack()
+        visited.append(currentNode.position)
+        for (position, transition, cost) in problem.getSuccessors(currentNode.position):
+            if not position in visited:
+                successorNode = SearchNode(position, currentNode, transition, cost)
+                open.push(successorNode)
+                #visited.append(position)
+    return False
     util.raiseNotDefined()
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
+    open = util.Queue()
+    visited = []
+    open.push(SearchNode(problem.getStartState()))
+    #visited.append(problem.getStartState())
+    while not open.isEmpty():
+        currentNode = open.pop()
+        if currentNode.position in visited:
+            continue
+        if problem.isGoalState(currentNode.position):
+            return currentNode.backtrack()
+        visited.append(currentNode.position)
+        for (position, transition, cost) in problem.getSuccessors(currentNode.position):
+            if not position in visited:
+                successorNode = SearchNode(position, currentNode, transition, cost)
+                open.push(successorNode)
+                #visited.append(successorNode.position)
+    return False
     util.raiseNotDefined()
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
+    #open = util.PriorityQueue()
+    opoen = util.Queue()
+    visited = []
+    open.push(SearchNode(problem.getStartState()), priority = 0)
+    while not open.isEmpty():
+        currentNode = open.pop()
+        if currentNode.position in visited:
+            continue
+        if problem.isGoalState(currentNode.position):
+            return currentNode.backtrack()
+        visited.append(currentNode.position)
+        for (position, transition, cost) in problem.getSuccessors(currentNode.position):
+            if not position in visited:
+                successorNode = SearchNode(position, currentNode, transition, cost)
+                open.push(successorNode, successorNode.cost)
+    return False
+    
     util.raiseNotDefined()
 
 def nullHeuristic(state, problem=None):
@@ -164,6 +223,70 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
+    #currentState = problem.getStartState()
+    
+    open = util.PriorityQueue()
+    #count = util.Counter()
+    closed = []
+    newNode = SearchNode(problem.getStartState(),None, None, 0, heuristic(problem.getStartState(), problem))
+    open.push(newNode, newNode.cost + newNode.heuristic)
+    while not open.isEmpty():
+        
+        #izbaci prvi cvor s PriorityQueue
+        currentNode = open.pop()
+        
+        if problem.isGoalState(currentNode.position):
+            return currentNode.backtrack()
+        
+        #dodaj na visited
+        closed.append(currentNode)
+
+        for suc in problem.getSuccessors(currentNode.position):
+            #zastavica 'i' sprjecava open.push kad je u closed-u cvor s manjom cijenom
+            #od trenutno razmatranog successora
+            i = True
+            successorNode = SearchNode(suc[0], currentNode, suc[1], currentNode.cost + suc[2], heuristic(suc[0], problem))
+            #closed.append(successorNode)
+            for iteratedNode in closed:
+                if iteratedNode.position == successorNode.position:
+                    if iteratedNode.cost <= successorNode.cost:
+                        i = False
+                        break
+                    else:
+                        closed.remove(iteratedNode)
+            if i:
+                open.push(successorNode, successorNode.cost + successorNode.heuristic)
+                #succ se odmah dodaje na closed jer je moguce da se vec nalazi na openu
+                #i kod sljedeceg izvrsavanja bi usao u ciklus
+                closed.append(successorNode)
+    return False
+    """
+    
+    open = util.PriorityQueue()
+    closed = util.Counter()
+    
+    #position , parent=None, transition=None, cost=0, heuristic=0
+    newNode = SearchNode(problem.getStartState(), None, None, 0, heuristic(problem.getStartState(), problem))
+    open.push(newNode, newNode.cost + newNode.heuristic)
+    #print newNode.heuristic
+    while not open.isEmpty():
+        currentNode = open.pop()
+        if problem.isGoalState(currentNode.position):
+            return currentNode.backtrack()
+        #closed[currentNode.position] = currentNode.cost
+        
+        for suc in problem.getSuccessors(currentNode.position):
+            #print suc
+            #raw_input("Press Enter to continue...")
+            successorNode = SearchNode(suc[0], currentNode, suc[1], currentNode.cost + suc[2], heuristic(suc[0], problem))
+            if not closed[successorNode.position] == 0:
+                if closed[successorNode.position] <= successorNode.cost:
+                    continue
+                else:
+                    closed[successorNode.position] = successorNode.cost
+            open.push(successorNode, successorNode.cost + successorNode.heuristic)
+    return
+    """
     util.raiseNotDefined()
 
 

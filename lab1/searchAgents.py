@@ -288,6 +288,8 @@ class CornersProblem(search.SearchProblem):
         # Please add any code here which you would like to use
         # in initializing the problem
         "*** YOUR CODE HERE ***"
+        #self.cornersToVisit = self.corners
+        #self.goal = getNearestCorner(self.getStartState)
 
     def getStartState(self):
         """
@@ -295,6 +297,7 @@ class CornersProblem(search.SearchProblem):
         space)
         """
         "*** YOUR CODE HERE ***"
+        return (self.startingPosition, self.corners)
         util.raiseNotDefined()
 
     def isGoalState(self, state):
@@ -302,6 +305,7 @@ class CornersProblem(search.SearchProblem):
         Returns whether this search state is a goal state of the problem.
         """
         "*** YOUR CODE HERE ***"
+        return len(state[1]) == 0
         util.raiseNotDefined()
 
     def getSuccessors(self, state):
@@ -323,10 +327,24 @@ class CornersProblem(search.SearchProblem):
             #   dx, dy = Actions.directionToVector(action)
             #   nextx, nexty = int(x + dx), int(y + dy)
             #   hitsWall = self.walls[nextx][nexty]
-
             "*** YOUR CODE HERE ***"
-
+            x,y = state[0]
+            #c = state[1]
+            dx, dy = Actions.directionToVector(action)
+            nextx, nexty = int(x + dx), int(y + dy)
+            if not self.walls[nextx][nexty]:
+                #provjeri je li sljedece stanje u kutu i ukloni ga s liste
+                #neposjecenih kutova
+                #lista = list(state[1])
+                lista = list(state[1])
+                if (nextx, nexty) in lista:
+                    lista.remove( (nextx, nexty) )
+                nextState = ( (nextx, nexty), lista )
+                cost = 1 #self.costFn(nextState)
+                successors.append( ( nextState, action, cost) )
+        
         self._expanded += 1 # DO NOT CHANGE
+        #print successors
         return successors
 
     def getCostOfActions(self, actions):
@@ -360,6 +378,62 @@ def cornersHeuristic(state, problem):
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
 
     "*** YOUR CODE HERE ***"
+    '''
+    #Heuristika u obliku cetverostrane piramide
+    x,y = state[0]
+    H = walls.height
+    W = walls.width
+    ratio = H/W
+    Max = max([H,W])    
+    h1 =  Max - max([(y-H/2),ratio*(x-W/2)])
+    '''
+    
+    #Broj zidova do najblizeg ugla
+    index = 0
+    d = [0,0,0,0]
+    x,y = state[0]
+    unvisitedCorners = state[1]
+    for i in range(len(unvisitedCorners)):
+        dx = x - unvisitedCorners[i][0]
+        dy = y - unvisitedCorners[i][1]
+        d[i] = (dx**2 + dy**2)**0.5
+        if d[i] <= d[index]:
+            index = i
+
+    return (d[index]**2 + len(unvisitedCorners)**2)**0.5
+    
+    '''
+   x,y = state[0]
+   targetCorner = unvisitedCorners[index]
+   dirx,diry = targetCorner[0]-x,targetCorner[1]
+   
+   while not x,y == targetCorner:
+       while
+    '''    
+    
+    """
+    wallNum = 0
+    for corner in corners:
+        x,y = state[0]
+        corx, cory = corner
+        dirX = util.sign(corx - x)
+        dirY = util.sign(cory - y)
+        if cory-y == 0:
+            while not (x,y) == corner:
+                if walls[x][y]:
+                    wallNum += 1
+                    x += dirX
+        else:
+            ratio = (corx-x)/(cory-y)
+            while not (x,y) == corner:
+                if walls[x][y]:
+                    wallNum += 1
+                if (x + dirX)/(y) - ratio < (x)/(y + dirY) - ratio:
+                    x += dirX
+                else:
+                    y += dirY
+    return wallNum
+    """
     return 0 # Default to trivial solution
 
 class AStarCornersAgent(SearchAgent):
@@ -485,6 +559,8 @@ class ClosestDotSearchAgent(SearchAgent):
         problem = AnyFoodSearchProblem(gameState)
 
         "*** YOUR CODE HERE ***"
+        return search.breadthFirstSearch(problem)
+        
         util.raiseNotDefined()
 
 class AnyFoodSearchProblem(PositionSearchProblem):
@@ -521,6 +597,10 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         x,y = state
 
         "*** YOUR CODE HERE ***"
+        if self.food[x][y]:
+            return True
+        
+        return False
         util.raiseNotDefined()
 
 def mazeDistance(point1, point2, gameState):
