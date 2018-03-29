@@ -396,21 +396,45 @@ def cornersHeuristic(state, problem):
     for i in range(len(unvisitedCorners)):
         dx = x - unvisitedCorners[i][0]
         dy = y - unvisitedCorners[i][1]
-        d[i] = (dx**2 + dy**2)**0.5
+        #d[i] = (dx**2 + dy**2)**0.5
+        d[i] = abs(dx) + abs(dy)
         if d[i] <= d[index]:
             index = i
 
-    return (d[index]**2 + len(unvisitedCorners)**2)**0.5
-    
+    return d[index] #+ len(unvisitedCorners)
+
     '''
-   x,y = state[0]
-   targetCorner = unvisitedCorners[index]
-   dirx,diry = targetCorner[0]-x,targetCorner[1]
-   
-   while not x,y == targetCorner:
-       while
-    '''    
-    
+    x,y = state[0]
+    targetCorner = corners[index]
+    #directional vector
+    if (x, y) == targetCorner:
+        return 0
+    dirx = targetCorner[0]-x
+    diry = targetCorner[1]-y
+    norm = abs(dirx) + abs(diry)
+    dirx /= float(norm)
+    diry /= float(norm)
+    #print "pocetna: ", state[0]
+    #print "smjer:   ", dirx, diry
+    wallCount = 0
+    intx, inty = x, y
+    while not (intx, inty) == targetCorner:
+        currentCell = (intx, inty)
+        #print currentCell, targetCorner
+        #print "koraci:"
+        while util.nearestPoint((x, y)) == currentCell:
+            #print currentCell, x, y, dirx, diry, util.nearestPoint((x, y))
+            x += dirx
+            y += diry
+            #print " ", x, y
+        intx, inty = util.nearestPoint((x, y))
+        #print intx, inty
+        #raw_input("press a key...")
+        if walls[intx][inty]:
+            wallCount += 1
+    #print wallCount
+    return wallCount
+    '''
     """
     wallNum = 0
     for corner in corners:
@@ -528,6 +552,7 @@ def foodHeuristic(state, problem):
     """
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
+    return len(foodGrid.asList())
     return 0
 
 class ClosestDotSearchAgent(SearchAgent):

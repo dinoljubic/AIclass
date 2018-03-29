@@ -194,8 +194,8 @@ def breadthFirstSearch(problem):
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
-    #open = util.PriorityQueue()
-    opoen = util.Queue()
+    open = util.PriorityQueue()
+    #opoen = util.Queue()
     visited = []
     open.push(SearchNode(problem.getStartState()), priority = 0)
     while not open.isEmpty():
@@ -207,7 +207,7 @@ def uniformCostSearch(problem):
         visited.append(currentNode.position)
         for (position, transition, cost) in problem.getSuccessors(currentNode.position):
             if not position in visited:
-                successorNode = SearchNode(position, currentNode, transition, cost)
+                successorNode = SearchNode(position, currentNode, transition, cost + currentNode.cost)
                 open.push(successorNode, successorNode.cost)
     return False
     
