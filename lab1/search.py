@@ -63,6 +63,7 @@ class SearchNode:
         final node to the initial.
         """
         moves = []
+        #heuristics = 0
         # make a deep copy to stop any referencing isues.
         node = copy.deepcopy(self)
 
@@ -74,7 +75,13 @@ class SearchNode:
         #print node.parent
         while not node.parent == None:
             moves.append(node.transition)
+            #heuristics = node.heuristic
             node = node.parent
+            '''
+            if heuristics + 1 < node.heuristic:
+                print "Heuristic inconsistent."
+                print heuristics, node.heuristic
+            '''
         moves.reverse()
         return moves
         
@@ -229,11 +236,13 @@ def aStarSearch(problem, heuristic=nullHeuristic):
     #count = util.Counter()
     closed = []
     newNode = SearchNode(problem.getStartState(),None, None, 0, heuristic(problem.getStartState(), problem))
-    open.push(newNode, newNode.cost + newNode.heuristic)
+    open.push(newNode, 0 + newNode.heuristic)
     while not open.isEmpty():
         
         #izbaci prvi cvor s PriorityQueue
         currentNode = open.pop()
+        #print currentNode.position
+        #print currentNode.heuristic, currentNode.cost
         
         if problem.isGoalState(currentNode.position):
             return currentNode.backtrack()
@@ -241,11 +250,12 @@ def aStarSearch(problem, heuristic=nullHeuristic):
         #dodaj na visited
         closed.append(currentNode)
 
-        for suc in problem.getSuccessors(currentNode.position):
+        for (state, transition, cost) in problem.getSuccessors(currentNode.position):
             #zastavica 'i' sprjecava open.push kad je u closed-u cvor s manjom cijenom
             #od trenutno razmatranog successora
             i = True
-            successorNode = SearchNode(suc[0], currentNode, suc[1], currentNode.cost + suc[2], heuristic(suc[0], problem))
+            #pathmax = max(heuristic(state, problem), currentNode.heuristic - cost)
+            successorNode = SearchNode(state, currentNode, transition, currentNode.cost + cost, heuristic(state, problem))
             #closed.append(successorNode)
             for iteratedNode in closed:
                 if iteratedNode.position == successorNode.position:

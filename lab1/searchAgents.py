@@ -335,12 +335,11 @@ class CornersProblem(search.SearchProblem):
             if not self.walls[nextx][nexty]:
                 #provjeri je li sljedece stanje u kutu i ukloni ga s liste
                 #neposjecenih kutova
-                #lista = list(state[1])
                 lista = list(state[1])
+                cost = 1  # self.costFn(nextState)
                 if (nextx, nexty) in lista:
                     lista.remove( (nextx, nexty) )
                 nextState = ( (nextx, nexty), lista )
-                cost = 1 #self.costFn(nextState)
                 successors.append( ( nextState, action, cost) )
         
         self._expanded += 1 # DO NOT CHANGE
@@ -378,34 +377,25 @@ def cornersHeuristic(state, problem):
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
 
     "*** YOUR CODE HERE ***"
-    '''
-    #Heuristika u obliku cetverostrane piramide
-    x,y = state[0]
-    H = walls.height
-    W = walls.width
-    ratio = H/W
-    Max = max([H,W])    
-    h1 =  Max - max([(y-H/2),ratio*(x-W/2)])
-    '''
-    
-    #Broj zidova do najblizeg ugla
-    index = 0
-    d = [0,0,0,0]
-    x,y = state[0]
+
+    #Manhattan distance
+    manhattanDistance = []
+    position = state[0]
     unvisitedCorners = state[1]
-    for i in range(len(unvisitedCorners)):
-        dx = x - unvisitedCorners[i][0]
-        dy = y - unvisitedCorners[i][1]
-        #d[i] = (dx**2 + dy**2)**0.5
-        d[i] = abs(dx) + abs(dy)
-        if d[i] <= d[index]:
-            index = i
+    unvisitedCornersCount = len(unvisitedCorners)
+    if unvisitedCornersCount == 0:
+        return 0
+    for corner in unvisitedCorners:
+        manhattanDistance.append(util.manhattanDistance(position, corner))
+    minimum = min(manhattanDistance)
+    heuristic = minimum + (unvisitedCornersCount - 1) * min(walls.height - 3, walls.width - 3)
+    return heuristic
 
-    return d[index] #+ len(unvisitedCorners)
 
     '''
-    x,y = state[0]
-    targetCorner = corners[index]
+    #BROJIM ZIDOVE NA PUTU
+    x, y = state[0]
+    targetCorner = unvisitedCorners[minimumByIndex]
     #directional vector
     if (x, y) == targetCorner:
         return 0
@@ -433,7 +423,7 @@ def cornersHeuristic(state, problem):
         if walls[intx][inty]:
             wallCount += 1
     #print wallCount
-    return wallCount
+    return manhattanDistance[minimumByIndex] #+ wallCount
     '''
     """
     wallNum = 0
@@ -552,7 +542,15 @@ def foodHeuristic(state, problem):
     """
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
-    return len(foodGrid.asList())
+    manhattanDistance = []
+    unvisitedFood = foodGrid.asList()
+    unvisitedFoodCount = len(unvisitedFood)
+    if unvisitedFoodCount == 0:
+        return 0
+    for food in unvisitedFood:
+        manhattanDistance.append(util.manhattanDistance(position, food))
+    minimum = min(manhattanDistance)
+    return minimum + (unvisitedFoodCount - 1)
     return 0
 
 class ClosestDotSearchAgent(SearchAgent):
