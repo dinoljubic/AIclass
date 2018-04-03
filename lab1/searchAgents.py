@@ -377,8 +377,7 @@ def cornersHeuristic(state, problem):
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
 
     "*** YOUR CODE HERE ***"
-
-    #Manhattan distance
+    #Manhattan distance + minimum remaining distance between corners
     manhattanDistance = []
     position = state[0]
     unvisitedCorners = state[1]
@@ -391,63 +390,6 @@ def cornersHeuristic(state, problem):
     heuristic = minimum + (unvisitedCornersCount - 1) * min(walls.height - 3, walls.width - 3)
     return heuristic
 
-
-    '''
-    #BROJIM ZIDOVE NA PUTU
-    x, y = state[0]
-    targetCorner = unvisitedCorners[minimumByIndex]
-    #directional vector
-    if (x, y) == targetCorner:
-        return 0
-    dirx = targetCorner[0]-x
-    diry = targetCorner[1]-y
-    norm = abs(dirx) + abs(diry)
-    dirx /= float(norm)
-    diry /= float(norm)
-    #print "pocetna: ", state[0]
-    #print "smjer:   ", dirx, diry
-    wallCount = 0
-    intx, inty = x, y
-    while not (intx, inty) == targetCorner:
-        currentCell = (intx, inty)
-        #print currentCell, targetCorner
-        #print "koraci:"
-        while util.nearestPoint((x, y)) == currentCell:
-            #print currentCell, x, y, dirx, diry, util.nearestPoint((x, y))
-            x += dirx
-            y += diry
-            #print " ", x, y
-        intx, inty = util.nearestPoint((x, y))
-        #print intx, inty
-        #raw_input("press a key...")
-        if walls[intx][inty]:
-            wallCount += 1
-    #print wallCount
-    return manhattanDistance[minimumByIndex] #+ wallCount
-    '''
-    """
-    wallNum = 0
-    for corner in corners:
-        x,y = state[0]
-        corx, cory = corner
-        dirX = util.sign(corx - x)
-        dirY = util.sign(cory - y)
-        if cory-y == 0:
-            while not (x,y) == corner:
-                if walls[x][y]:
-                    wallNum += 1
-                    x += dirX
-        else:
-            ratio = (corx-x)/(cory-y)
-            while not (x,y) == corner:
-                if walls[x][y]:
-                    wallNum += 1
-                if (x + dirX)/(y) - ratio < (x)/(y + dirY) - ratio:
-                    x += dirX
-                else:
-                    y += dirY
-    return wallNum
-    """
     return 0 # Default to trivial solution
 
 class AStarCornersAgent(SearchAgent):

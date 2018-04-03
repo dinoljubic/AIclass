@@ -231,7 +231,7 @@ def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
     #currentState = problem.getStartState()
-    
+
     open = util.PriorityQueue()
     #count = util.Counter()
     closed = []
@@ -270,33 +270,46 @@ def aStarSearch(problem, heuristic=nullHeuristic):
                 #i kod sljedeceg izvrsavanja bi usao u ciklus
                 closed.append(successorNode)
     return False
-    """
-    
+
+    '''
     open = util.PriorityQueue()
     closed = util.Counter()
     
     #position , parent=None, transition=None, cost=0, heuristic=0
-    newNode = SearchNode(problem.getStartState(), None, None, 0, heuristic(problem.getStartState(), problem))
-    open.push(newNode, newNode.cost + newNode.heuristic)
+    startNode = SearchNode(problem.getStartState(), None, None, 0, heuristic(problem.getStartState(), problem))
+    open.push(startNode, startNode.cost + startNode.heuristic)
     #print newNode.heuristic
     while not open.isEmpty():
         currentNode = open.pop()
+
         if problem.isGoalState(currentNode.position):
             return currentNode.backtrack()
-        #closed[currentNode.position] = currentNode.cost
+
+        if currentNode.position == startNode.position:
+            continue
+
+        if closed[currentNode.position] != 0 and closed[currentNode.position] <= currentNode.cost:
+            continue
+
+        closed[currentNode.position] = currentNode.cost
         
-        for suc in problem.getSuccessors(currentNode.position):
+        for (position, transition, cost) in problem.getSuccessors(currentNode.position):
             #print suc
             #raw_input("Press Enter to continue...")
-            successorNode = SearchNode(suc[0], currentNode, suc[1], currentNode.cost + suc[2], heuristic(suc[0], problem))
+            successorNode = SearchNode(position, currentNode, transition, currentNode.cost + cost, heuristic(position, problem))
+
             if not closed[successorNode.position] == 0:
                 if closed[successorNode.position] <= successorNode.cost:
                     continue
-                else:
-                    closed[successorNode.position] = successorNode.cost
+                #else:
+                #    closed[successorNode.position] = successorNode.cost
+            print successorNode.position
+            print successorNode.cost
+            print successorNode.heuristic
+            raw_input("...")
             open.push(successorNode, successorNode.cost + successorNode.heuristic)
-    return
-    """
+    return False
+    '''
     util.raiseNotDefined()
 
 
